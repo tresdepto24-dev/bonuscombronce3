@@ -95,10 +95,6 @@
             font-size: 0.7rem;
             margin-bottom: 6px;
             color: #5c3a21;
-            background: #f4ebd0;
-            border: 1px dashed #bc6c25;
-            padding: 4px;
-            border-radius: 2px;
         }
         .contenido-fijo {
             margin-bottom: 8px;
@@ -174,7 +170,7 @@
         </div>
 
         <div class="grilla-avisos" id="grillaAvisos">
-            <!-- Los 10 avisos con soporte fotográfico se generan dinámicamente -->
+            <!-- Los 10 avisos se generan dinámicamente -->
         </div>
 
         <div class="pie-guia">
@@ -183,7 +179,7 @@
         </div>
     </div>
 
-    <!-- Scripts de Firebase con manejo seguro de imágenes -->
+    <!-- Scripts de Firebase limpios de errores -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -204,7 +200,7 @@
 
         const totalAvisos = 10;
         const contenedor = document.getElementById('grillaAvisos');
-        const imagenesBase64 = {};
+        const imagenesTemp = {};
 
         for (let i = 1; i <= totalAvisos; i++) {
             const numStr = i < 10 ? '0' + i : i;
@@ -218,33 +214,33 @@
                     
                     <div id="form-edit-${i}">
                         <div class="subida-foto-container">
-                            <label for="file-${i}">📷 Seleccionar Imagen:</label><br>
-                            <input type="file" id="file-${i}" accept="image/*" style="font-size:0.65rem; width:100%; margin-top:3px;">
+                            <label>📷 Foto del aviso:</label>
+                            <input type="file" id="file-${i}" accept="image/*" style="font-size:0.7rem; width:100%; margin-top:2px;">
                         </div>
                         <input type="text" id="titulo-${i}" class="campo-input" placeholder="Título / Comercio">
                         <textarea id="texto-${i}" class="campo-textarea" placeholder="Descripción, teléfono y datos..."></textarea>
-                        <button class="btn btn-guardar" id="btn-g-${i}">💾 Guardar Casillero</button>
+                        <button class="btn btn-guardar" id="btn-guardar-${i}">💾 Guardar Casillero</button>
                     </div>
 
                     <div id="vista-fija-${i}" style="display: none;">
                         <div class="contenido-fijo">
-                            <img id="fijo-img-${i}" class="foto-fija-preview" src="" alt="Imagen del aviso" style="display:none;">
+                            <img id="fijo-img-${i}" class="foto-fija-preview" src="" alt="Sin imagen" style="display:none;">
                             <div class="titulo-fijo" id="fijo-titulo-${i}"></div>
                             <div class="texto-fijo" id="fijo-texto-${i}"></div>
                         </div>
-                        <button class="btn btn-editar" id="btn-e-${i}">✏️ Modificar Aviso</button>
+                        <button class="btn btn-editar" id="btn-editar-${i}">✏️ Modificar Aviso</button>
                     </div>
                 </div>
             `;
         }
 
-        window.fijarCasillero = function(id, titulo, texto, imagenUrl, hashId, fechado) {
+        function fijarCasillero(id, titulo, texto, imagen, hashId, fechado) {
             document.getElementById(`fijo-titulo-${id}`).innerText = titulo;
             document.getElementById(`fijo-texto-${id}`).innerText = texto;
             
             const imgElement = document.getElementById(`fijo-img-${id}`);
-            if (imagenUrl && imagenUrl.length > 50) {
-                imgElement.src = imagenUrl;
+            if (imagen) {
+                imgElement.src = imagen;
                 imgElement.style.display = 'block';
             } else {
                 imgElement.style.display = 'none';
@@ -255,9 +251,9 @@
 
             document.getElementById(`form-edit-${id}`).style.display = 'none';
             document.getElementById(`vista-fija-${id}`).style.display = 'block';
-        };
+        }
 
-        window.habilitarEdicion = function(id) {
+        function activarEdicion(id) {
             const tituloActual = document.getElementById(`fijo-titulo-${id}`).innerText;
             const textoActual = document.getElementById(`fijo-texto-${id}`).innerText;
 
@@ -266,60 +262,56 @@
 
             document.getElementById(`vista-fija-${id}`).style.display = 'none';
             document.getElementById(`form-edit-${id}`).style.display = 'block';
-        };
+        }
 
         for (let i = 1; i <= totalAvisos; i++) {
-            const inputArchivo = document.getElementById(`file-${i}`);
-            inputArchivo.addEventListener('change', function(e) {
-                const archivo = e.target.files[0];
-                if (archivo) {
-                    const lector = new FileReader();
-                    lector.onload = function(evento) {
-                        imagenesBase64[i] = evento.target.result;
+            document.getElementById(`file-${i}`).addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        imagenesTemp[i] = event.target.result;
                     };
-                    lector.readAsDataURL(archivo);
+                    reader.readAsDataURL(file);
                 }
             });
 
-            document.getElementById(`btn-g-${i}`).addEventListener('click', () => {
-                const titulo = document.getElementById(`titulo-${i}`).value.trim();
-                const texto = document.getElementById(`texto-${i}`).value.trim();
+            document.getElementById(`btn-guardar-${i}`).addEventListener('click', () => {
+                const id = i;
+                const titulo = document.getElementById(`titulo-${id}`).value.trim();
+                const texto = document.getElementById(`texto-${id}`).value.trim();
 
                 if (!titulo || !texto) {
-                    alert("Completá el título y la descripción para fijar el aviso.");
+                    alert("Por favor completá el título y la descripción.");
                     return;
                 }
 
-                let imagenAguardar = imagenesBase64[i];
-                if (!imagenAguardar) {
-                    const imagenPrevia = document.getElementById(`fijo-img-${i}`).src;
-                    if (imagenPrevia && imagenPrevia.startsWith('data:image')) {
-                        imagenAguardar = imagenPrevia;
-                    } else {
-                        imagenAguardar = "";
-                    }
+                let imagenFinal = imagenesTemp[id];
+                if (!imagenFinal) {
+                    const imgExistente = document.getElementById(`fijo-img-${id}`).src;
+                    imagenFinal = (imgExistente && imgExistente.startsWith('data:image')) ? imgExistente : '';
                 }
 
                 const ahora = new Date();
                 const fechado = ahora.toLocaleDateString('es-AR') + ' ' + ahora.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
                 const hashId = 'FOTO-' + Math.random().toString(36).substring(2, 8).toUpperCase();
 
-                const avisoRef = ref(db, 'bonuscom_clasificados_fotos_10/aviso_' + i);
+                const avisoRef = ref(db, 'bonuscom_clasificados_fotos_10/aviso_' + id);
                 set(avisoRef, {
                     titulo,
                     texto,
-                    imagen: imagenAguardar,
+                    imagen: imagenFinal,
                     fechado,
                     hashId
                 }).then(() => {
-                    fijarCasillero(i, titulo, texto, imagenAguardar, hashId, fechado);
+                    fijarCasillero(id, titulo, texto, imagenFinal, hashId, fechado);
                 }).catch((error) => {
-                    alert('Error al guardar en Firebase: ' + error.message);
+                    alert('No se pudo guardar: ' + error.message);
                 });
             });
 
-            document.getElementById(`btn-e-${i}`).addEventListener('click', () => {
-                habilitarEdicion(i);
+            document.getElementById(`btn-editar-${i}`).addEventListener('click', () => {
+                activarEdicion(i);
             });
         }
 
@@ -329,7 +321,7 @@
                 for (let i = 1; i <= totalAvisos; i++) {
                     const item = data['aviso_' + i];
                     if (item && item.titulo && item.texto) {
-                        fijarCasillero(i, item.titulo, item.texto, item.imagen || "", item.hashId, item.fechado);
+                        fijarCasillero(i, item.titulo, item.texto, item.imagen, item.hashId, item.fechado);
                     }
                 }
             }
