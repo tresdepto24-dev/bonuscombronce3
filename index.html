@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bonuscom Guía — Grilla de 10 Avisos (VentaniYA MDP)</title>
+    <title>Bonuscom — Clasificados con Fotos (VentaniYA MDP)</title>
     <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
     <style>
         body {
@@ -17,7 +17,7 @@
         }
         .contenedor-guia {
             width: 100%;
-            max-width: 800px;
+            max-width: 950px;
             background: #f4ebd0;
             border: 4px solid #4a2e18;
             padding: 25px;
@@ -33,7 +33,7 @@
         }
         .encabezado h1 {
             font-family: 'Special Elite', cursive;
-            font-size: 2rem;
+            font-size: 2.2rem;
             margin: 0;
             color: #2c1810;
         }
@@ -46,80 +46,110 @@
         }
         .grilla-avisos {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 15px;
         }
         .tarjeta-aviso {
             background: #faedcd;
             border: 2px dashed #bc6c25;
-            padding: 15px;
-            border-radius: 4px;
+            padding: 12px;
+            border-radius: 3px;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         .tarjeta-aviso h3 {
             font-family: 'Special Elite', cursive;
-            margin-top: 0;
+            margin: 0 0 4px 0;
             color: #bc6c25;
-            font-size: 1.1rem;
-            border-bottom: 1px dashed #bc6c25;
-            padding-bottom: 5px;
+            font-size: 0.95rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px dotted #bc6c25;
+            padding-bottom: 3px;
         }
         .meta-aviso {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #5c3a21;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-weight: bold;
         }
         .campo-input, .campo-textarea {
             width: 100%;
             background: #fff;
             border: 1px solid #bc6c25;
-            padding: 6px;
+            padding: 5px 6px;
             font-family: 'Courier Prime', monospace;
-            font-size: 0.85rem;
-            margin-bottom: 8px;
+            font-size: 0.75rem;
+            margin-bottom: 5px;
             box-sizing: border-box;
             border-radius: 2px;
         }
         .campo-textarea {
             resize: vertical;
-            height: 60px;
+            height: 45px;
         }
-        .preview-foto {
-            max-width: 100%;
-            height: 100px;
-            object-fit: cover;
-            border: 1px solid #4a2e18;
-            display: block;
+        .subida-foto-container {
+            font-size: 0.7rem;
+            margin-bottom: 6px;
+            color: #5c3a21;
+        }
+        /* Estilos del aviso FIJO IMPRESO CON FOTO */
+        .contenido-fijo {
             margin-bottom: 8px;
-            background: #ddd;
+            background: #fff;
+            border: 1px solid #bc6c25;
+            padding: 6px;
+            border-radius: 2px;
         }
-        .acciones-aviso {
-            display: flex;
-            gap: 5px;
+        .foto-fija-preview {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border: 1px solid #bc6c25;
+            margin-bottom: 5px;
+            border-radius: 2px;
+            background: #eee;
+        }
+        .titulo-fijo {
+            font-weight: bold;
+            font-size: 0.8rem;
+            color: #2c1810;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+            border-bottom: 1px solid #f4ebd0;
+            padding-bottom: 2px;
+        }
+        .texto-fijo {
+            font-size: 0.7rem;
+            color: #4a2e18;
+            white-space: pre-wrap;
+            line-height: 1.2;
         }
         .btn {
-            background: #5c3a21;
-            color: #f4ebd0;
+            width: 100%;
             border: none;
-            padding: 6px 10px;
+            padding: 5px;
             font-family: 'Special Elite', cursive;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             cursor: pointer;
-            border-radius: 3px;
-            flex: 1;
+            border-radius: 2px;
             text-align: center;
         }
-        .btn:hover {
+        .btn-guardar {
+            background: #5c3a21;
+            color: #f4ebd0;
+        }
+        .btn-guardar:hover {
             background: #7c4e31;
         }
-        .btn-descargar {
+        .btn-editar {
             background: #bc6c25;
+            color: #fff;
         }
-        .btn-descargar:hover {
+        .btn-editar:hover {
             background: #d4833b;
         }
         .pie-guia {
@@ -136,8 +166,8 @@
 
     <div class="contenedor-guia">
         <div class="encabezado">
-            <h1>BONUSCOM GUÍA</h1>
-            <p>Módulo Oficial de 10 Espacios — Sello VentaniYA! Mar del Plata</p>
+            <h1>BONUSCOM CLASIFICADOS</h1>
+            <p>Sección Destacados con Fotos (10 Casilleros) — Sello VentaniYA! Mar del Plata</p>
         </div>
 
         <div class="grilla-avisos" id="grillaAvisos">
@@ -145,134 +175,162 @@
         </div>
 
         <div class="pie-guia">
-            <strong>BonusCom Guía & VentaniYA! MDP 2026</strong><br>
-            Sistema de Gestión Comercial en Tiempo Real
+            <strong>BonusCom & VentaniYA! MDP 2026</strong><br>
+            Directorio Comercial Ilustrado en Tiempo Real
         </div>
     </div>
 
-    <!-- Scripts de Firebase integrados de forma transparente -->
+    <!-- Scripts de Firebase con control de vistas fijas y fotos -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyAfTZmWdTnhQ_gkoSljDjFGWP7peYQQFC0",
-            authDomain: "bonuscom3.firebaseapp.com",
-            projectId: "bonuscom3",
-            storageBucket: "bonuscom3.firebasestorage.app",
-            messagingSenderId: "792157383470",
-            appId: "1:792157383470:web:25327a470b6cb6bd17a8bf",
-            measurementId: "G-TK15S1C2MK"
+            apiKey: "AIzaSyAPAI1gTljTiynlWgGa-hOALMtCnjCUFOo",
+            authDomain: "bonmuscomlistado1.firebaseapp.com",
+            projectId: "bonmuscomlistado1",
+            storageBucket: "bonmuscomlistado1.firebasestorage.app",
+            messagingSenderId: "137381243576",
+            appId: "1:137381243576:web:85c2890572a1228501a24d",
+            measurementId: "G-24NSYJ0K50"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const dbRef = ref(db);
 
         const totalAvisos = 10;
         const contenedor = document.getElementById('grillaAvisos');
 
-        // Generar estructura de las 10 tarjetas en pantalla
+        // Almacenamiento temporal de imágenes en Base64 por casillero
+        const imagenesTemp = {};
+
+        // 1. Generar la estructura de los 10 casilleros
         for (let i = 1; i <= totalAvisos; i++) {
+            const numStr = i < 10 ? '0' + i : i;
             contenedor.innerHTML += `
                 <div class="tarjeta-aviso" id="tarjeta-${i}">
                     <h3>
-                        <span>Casillero N° ${i < 10 ? '0' + i : i}</span>
-                        <span id="hash-${i}" style="font-size:0.65rem; color:#7c4e31;">HASH: --------</span>
+                        <span>Destacado N° ${numStr}</span>
+                        <span id="hash-${i}" style="font-size:0.6rem; color:#7c4e31;">HASH: --------</span>
                     </h3>
-                    <div class="meta-info-linea" id="meta-${i}" class="meta-aviso">Actualizado: --/--/---- --:-- hs</div>
+                    <div class="meta-aviso" id="meta-${i}">Actualizado: --/--/---- --:-- hs</div>
                     
-                    <input type="text" id="titulo-${i}" class="campo-input" placeholder="Título del Comercio / Aviso">
-                    <textarea id="texto-${i}" class="campo-textarea" placeholder="Descripción y detalles..."></textarea>
-                    
-                    <input type="file" id="foto-file-${i}" class="campo-input" accept="image/*" onchange="cargarImagen(event, ${i})">
-                    <input type="hidden" id="foto-url-${i}">
-                    <img id="preview-${i}" class="preview-foto" src="" alt="Sin foto cargada" style="display:none;">
+                    <!-- Vista editable (Formulario) -->
+                    <div id="form-edit-${i}">
+                        <div class="subida-foto-container">
+                            <label>📷 Foto del aviso:</label>
+                            <input type="file" id="file-${i}" accept="image/*" style="font-size:0.7rem; width:100%; margin-top:2px;">
+                        </div>
+                        <input type="text" id="titulo-${i}" class="campo-input" placeholder="Título / Comercio">
+                        <textarea id="texto-${i}" class="campo-textarea" placeholder="Descripción, teléfono y datos..."></textarea>
+                        <button class="btn btn-guardar" id="btn-g-${i}">💾 Guardar Casillero</button>
+                    </div>
 
-                    <div class="acciones-aviso">
-                        <button class="btn" onclick="guardarAviso(${i})">💾 Guardar</button>
-                        <button class="btn btn-descargar" onclick="descargarAviso(${i})">📥 Descargar</button>
+                    <!-- Vista fija (Texto e imagen impresa bloqueada) -->
+                    <div id="vista-fija-${i}" style="display: none;">
+                        <div class="contenido-fijo">
+                            <img id="fijo-img-${i}" class="foto-fija-preview" src="" alt="Sin imagen" style="display:none;">
+                            <div class="titulo-fijo" id="fijo-titulo-${i}"></div>
+                            <div class="texto-fijo" id="fijo-texto-${i}"></div>
+                        </div>
+                        <button class="btn btn-editar" id="btn-e-${i}">✏️ Modificar Aviso</button>
                     </div>
                 </div>
             `;
         }
 
-        // Cargar imagen en base64 para guardarla directo
-        window.cargarImagen = function(event, id) {
-            const archivo = event.target.files[0];
-            if (archivo) {
-                const lector = new FileReader();
-                lector.onload = function(e) {
-                    document.getElementById(`foto-url-${id}`).value = e.target.result;
-                    const imgPreview = document.getElementById(`preview-${id}`);
-                    imgPreview.src = e.target.result;
-                    imgPreview.style.display = 'block';
-                };
-                lector.readAsDataURL(archivo);
-            }
-        };
-
-        // Guardar en la base de datos con hash y fechado 24hs
-        window.guardarAviso = function(id) {
-            const titulo = document.getElementById(`titulo-${id}`).value;
-            const texto = document.getElementById(`texto-${id}`).value;
-            const fotoUrl = document.getElementById(`foto-url-${id}`).value;
+        // Función global para congelar el casillero en modo FIJO
+        window.fijarCasillero = function(id, titulo, texto, imagen, hashId, fechado) {
+            document.getElementById(`fijo-titulo-${id}`).innerText = titulo;
+            document.getElementById(`fijo-texto-${id}`).innerText = texto;
             
-            const ahora = new Date();
-            const fechado = ahora.toLocaleDateString('es-AR') + ' ' + ahora.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
-            const hashId = 'MK-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+            const imgElement = document.getElementById(`fijo-img-${id}`);
+            if (imagen) {
+                imgElement.src = imagen;
+                imgElement.style.display = 'block';
+            } else {
+                imgElement.style.display = 'none';
+            }
 
-            const avisoRef = ref(db, 'bonuscom_guia/aviso_' + id);
-            set(avisoRef, {
-                titulo,
-                texto,
-                fotoUrl,
-                fechado,
-                hashId
-            }).then(() => {
-                alert('¡Aviso guardado con éxito en Bonuscom Guía!');
-            }).catch((error) => {
-                alert('Error al guardar: ' + error.message);
+            if (hashId) document.getElementById(`hash-${id}`).innerText = 'HASH: ' + hashId;
+            if (fechado) document.getElementById(`meta-${id}`).innerText = 'Actualizado: ' + fechado;
+
+            document.getElementById(`form-edit-${id}`).style.display = 'none';
+            document.getElementById(`vista-fija-${id}`).style.display = 'block';
+        };
+
+        // Función global para volver a editar
+        window.habilitarEdicion = function(id) {
+            const tituloActual = document.getElementById(`fijo-titulo-${id}`).innerText;
+            const textoActual = document.getElementById(`fijo-texto-${id}`).innerText;
+
+            document.getElementById(`titulo-${id}`).value = tituloActual;
+            document.getElementById(`texto-${id}`).value = textoActual;
+
+            document.getElementById(`vista-fija-${id}`).style.display = 'none';
+            document.getElementById(`form-edit-${id}`).style.display = 'block';
+        };
+
+        // Manejar la carga de archivos de imagen y convertirlos a Base64
+        for (let i = 1; i <= totalAvisos; i++) {
+            document.getElementById(`file-${i}`).addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        imagenesTemp[i] = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
             });
-        };
 
-        // Descargar el aviso individualmente como ficha o texto
-        window.descargarAviso = function(id) {
-            const titulo = document.getElementById(`titulo-${id}`).value || 'Sin Título';
-            const texto = document.getElementById(`texto-${id}`).value || 'Sin Texto';
-            const hash = document.getElementById(`hash-${id}`).innerText;
-            const fecha = document.getElementById(`meta-${id}`).innerText;
+            document.getElementById(`btn-g-${i}`).addEventListener('click', () => {
+                const titulo = document.getElementById(`titulo-${i}`).value.trim();
+                const texto = document.getElementById(`texto-${i}`).value.trim();
 
-            const contenido = `=== BONUSCOM GUÍA - VENTANIYA MDP ===\nCasillero N° ${id}\n${hash}\n${fecha}\n\nTÍTULO: ${titulo}\n\nDETALLE:\n${texto}\n\n=====================================`;
-            const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `bonuscom-guia-aviso-${id}.txt`;
-            a.click();
-        };
+                if (!titulo || !texto) {
+                    alert("Completá el título y la descripción para fijar el aviso.");
+                    return;
+                }
 
-        // Escuchar cambios en tiempo real desde la base de datos
-        const guiaRef = ref(db, 'bonuscom_guia');
-        onValue(guiaRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
+                // Mantener imagen anterior si no se subió una nueva en la edición
+                let imagenFinal = imagenesTemp[i];
+                if (!imagenFinal) {
+                    const imgExistente = document.getElementById(`fijo-img-${i}`).src;
+                    imagenFinal = (imgExistente && imgExistente.startsWith('data:image')) ? imgExistente : '';
+                }
+
+                const ahora = new Date();
+                const fechado = ahora.toLocaleDateString('es-AR') + ' ' + ahora.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                const hashId = 'FOTO-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+
+                const avisoRef = ref(db, 'bonuscom_clasificados_fotos_10/aviso_' + i);
+                set(avisoRef, { titulo, texto, imagen: imagenFinal, fechado, hashId }).then(() => {
+                    fijarCasillero(i, titulo, texto, imagenFinal, hashId, fechado);
+                }).catch((error) => {
+                    alert('Error al guardar: ' + error.message);
+                });
+            });
+
+            document.getElementById(`btn-e-${i}`).addEventListener('click', () => {
+                habilitarEdicion(i);
+            });
+        }
+
+        // 2. Cargar datos desde Firebase al abrir la página y fijar los que ya estén guardados
+        get(child(dbRef, 'bonuscom_clasificados_fotos_10')).then((snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
                 for (let i = 1; i <= totalAvisos; i++) {
                     const item = data['aviso_' + i];
-                    if (item) {
-                        document.getElementById(`titulo-${i}`).value = item.titulo || '';
-                        document.getElementById(`texto-${i}`).value = item.texto || '';
-                        document.getElementById(`hash-${i}`).innerText = 'HASH: ' + (item.hashId || '--------');
-                        document.getElementById(`meta-${i}`).innerText = 'Actualizado: ' + (item.fechado || '--/--/---- --:--');
-                        
-                        if (item.fotoUrl) {
-                            document.getElementById(`foto-url-${i}`).value = item.fotoUrl;
-                            const imgPreview = document.getElementById(`preview-${i}`);
-                            imgPreview.src = item.fotoUrl;
-                            imgPreview.style.display = 'block';
-                        }
+                    if (item && item.titulo && item.texto) {
+                        fijarCasillero(i, item.titulo, item.texto, item.imagen, item.hashId, item.fechado);
                     }
                 }
             }
+        }).catch((error) => {
+            console.error("Error al cargar datos:", error);
         });
     </script>
 </body>
