@@ -95,6 +95,10 @@
             font-size: 0.7rem;
             margin-bottom: 6px;
             color: #5c3a21;
+            background: #f4ebd0;
+            border: 1px dashed #bc6c25;
+            padding: 4px;
+            border-radius: 2px;
         }
         /* Estilos del aviso FIJO IMPRESO CON FOTO */
         .contenido-fijo {
@@ -180,7 +184,7 @@
         </div>
     </div>
 
-    <!-- Scripts de Firebase con control de vistas fijas y fotos -->
+    <!-- Scripts de Firebase con manejo seguro de imágenes -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -202,8 +206,8 @@
         const totalAvisos = 10;
         const contenedor = document.getElementById('grillaAvisos');
 
-        // Almacenamiento temporal de imágenes en Base64 por casillero
-        const imagenesTemp = {};
+        // Memoria local de imágenes cargadas en la sesión
+        const imagenesBase64 = {};
 
         // 1. Generar la estructura de los 10 casilleros
         for (let i = 1; i <= totalAvisos; i++) {
@@ -219,8 +223,8 @@
                     <!-- Vista editable (Formulario) -->
                     <div id="form-edit-${i}">
                         <div class="subida-foto-container">
-                            <label>📷 Foto del aviso:</label>
-                            <input type="file" id="file-${i}" accept="image/*" style="font-size:0.7rem; width:100%; margin-top:2px;">
+                            <label for="file-${i}">📷 Seleccionar Imagen:</label><br>
+                            <input type="file" id="file-${i}" accept="image/*" style="font-size:0.65rem; width:100%; margin-top:3px;">
                         </div>
                         <input type="text" id="titulo-${i}" class="campo-input" placeholder="Título / Comercio">
                         <textarea id="texto-${i}" class="campo-textarea" placeholder="Descripción, teléfono y datos..."></textarea>
@@ -230,7 +234,7 @@
                     <!-- Vista fija (Texto e imagen impresa bloqueada) -->
                     <div id="vista-fija-${i}" style="display: none;">
                         <div class="contenido-fijo">
-                            <img id="fijo-img-${i}" class="foto-fija-preview" src="" alt="Sin imagen" style="display:none;">
+                            <img id="fijo-img-${i}" class="foto-fija-preview" src="" alt="Imagen del aviso" style="display:none;">
                             <div class="titulo-fijo" id="fijo-titulo-${i}"></div>
                             <div class="texto-fijo" id="fijo-texto-${i}"></div>
                         </div>
@@ -240,14 +244,14 @@
             `;
         }
 
-        // Función global para congelar el casillero en modo FIJO
-        window.fijarCasillero = function(id, titulo, texto, imagen, hashId, fechado) {
+        // Función para congelar y mostrar el aviso fijo con su foto
+        window.fijarCasillero = function(id, titulo, texto, imagenUrl, hashId, fechado) {
             document.getElementById(`fijo-titulo-${id}`).innerText = titulo;
             document.getElementById(`fijo-texto-${id}`).innerText = texto;
             
             const imgElement = document.getElementById(`fijo-img-${id}`);
-            if (imagen) {
-                imgElement.src = imagen;
+            if (imagenUrl && imagenUrl.length > 50) {
+                imgElement.src = imagenUrl;
                 imgElement.style.display = 'block';
             } else {
                 imgElement.style.display = 'none';
@@ -260,7 +264,7 @@
             document.getElementById(`vista-fija-${id}`).style.display = 'block';
         };
 
-        // Función global para volver a editar
+        // Función para reabrir la edición manteniendo datos previos
         window.habilitarEdicion = function(id) {
             const tituloActual = document.getElementById(`fijo-titulo-${id}`).innerText;
             const textoActual = document.getElementById(`fijo-texto-${id}`).innerText;
@@ -272,19 +276,22 @@
             document.getElementById(`form-edit-${id}`).style.display = 'block';
         };
 
-        // Manejar la carga de archivos de imagen y convertirlos a Base64
+        // Registrar eventos para cada casillero de manera aislada
         for (let i = 1; i <= totalAvisos; i++) {
-            document.getElementById(`file-${i}`).addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        imagenesTemp[i] = event.target.result;
+            // Escuchar cambios en el selector de archivos local
+            const inputArchivo = document.getElementById(`file-${i}`);
+            inputArchivo.addEventListener('change', function(e) {
+                const archivo = e.target.files[0];
+                if (archivo) {
+                    const lector = new FileReader();
+                    lector.onload = function(evento) {
+                        imagenesBase64[i] = evento.target.result; // Guardamos en memoria local
                     };
-                    reader.readAsDataURL(file);
+                    lector.readAsDataURL(archivo);
                 }
             });
 
+            // Botón Guardar
             document.getElementById(`btn-g-${i}`).addEventListener('click', () => {
                 const titulo = document.getElementById(`titulo-${i}`).value.trim();
                 const texto = document.getElementById(`texto-${i}`).value.trim();
@@ -294,11 +301,15 @@
                     return;
                 }
 
-                // Mantener imagen anterior si no se subió una nueva en la edición
-                let imagenFinal = imagenesTemp[i];
-                if (!imagenFinal) {
-                    const imgExistente = document.getElementById(`fijo-img-${i}`).src;
-                    imagenFinal = (imgExistente && imgExistente.startsWith('data:image')) ? imgExistente : '';
+                // Determinar qué imagen guardar (nueva seleccionada o la que ya tenía puesta)
+                let imagenAguardar = imagenesBase64[i];
+                if (!imagenAguardar) {
+                    const imagenPrevia = document.getElementById(`fijo-img-${i}`).src;
+                    if (imagenPrevia && imagenPrevia.startsWith('data:image')) {
+                        imagenAguardar = imagenPrevia;
+                    } else {
+                        imagenAguardar = "";
+                    }
                 }
 
                 const ahora = new Date();
@@ -306,26 +317,33 @@
                 const hashId = 'FOTO-' + Math.random().toString(36).substring(2, 8).toUpperCase();
 
                 const avisoRef = ref(db, 'bonuscom_clasificados_fotos_10/aviso_' + i);
-                set(avisoRef, { titulo, texto, imagen: imagenFinal, fechado, hashId }).then(() => {
-                    fijarCasillero(i, titulo, texto, imagenFinal, hashId, fechado);
+                set(avisoRef, {
+                    titulo,
+                    texto,
+                    imagen: imagenAguardar,
+                    fechado,
+                    hashId
+                }).then(() => {
+                    fijarCasillero(i, titulo, texto, imagenAguardar, hashId, fechado);
                 }).catch((error) => {
-                    alert('Error al guardar: ' + error.message);
+                    alert('Error al guardar en Firebase: ' + error.message);
                 });
             });
 
+            // Botón Editar
             document.getElementById(`btn-e-${i}`).addEventListener('click', () => {
                 habilitarEdicion(i);
             });
         }
 
-        // 2. Cargar datos desde Firebase al abrir la página y fijar los que ya estén guardados
+        // 2. Carga inicial desde Firebase al abrir la página
         get(child(dbRef, 'bonuscom_clasificados_fotos_10')).then((snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 for (let i = 1; i <= totalAvisos; i++) {
                     const item = data['aviso_' + i];
                     if (item && item.titulo && item.texto) {
-                        fijarCasillero(i, item.titulo, item.texto, item.imagen, item.hashId, item.fechado);
+                        fijarCasillero(i, item.titulo, item.texto, item.imagen || "", item.hashId, item.fechado);
                     }
                 }
             }
